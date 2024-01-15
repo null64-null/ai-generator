@@ -17,5 +17,5 @@ class CrossEntropyError:
     
     def generate_grad(self, x, t):
         batch_size = x.shape[0]
-        self.dx = -(t / (x + 1e-7)) / batch_size
+        self.dx = -( t / x ) / batch_size
     
