@@ -20,11 +20,13 @@ from mnist.mnist import load_mnist
 train_data_length = x_train.shape[0]
 test_data_length = x_test.shape[0]
 
-# 1. for mnist
+# layers
 layers = [
-    AffineLayer([784, 50]),
-    Sigmoid(),
-    AffineLayer([50, 10]),
+    AffineLayer([784, 500]),
+    Relu(),
+    AffineLayer([500, 100]),
+    Relu(),
+    AffineLayer([100, 10]),
     Softmax(),
 ]
 

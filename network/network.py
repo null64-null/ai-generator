@@ -26,3 +26,7 @@ class AffineLayer:
         self.b -= self.db * lerning_rate
 
 # network for conb
+'''
+class ConvolutionLayer:
+    def __init__(self):
+'''     
