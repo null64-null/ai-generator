@@ -28,8 +28,9 @@ dx = np.einsum('ij, ijk, ik -> ij', y, mid_3d, dy)
 #print(dx)
 '''
 
-# convolution test
 
+# convolution test
+'''
 m = np.array([
     [1, 2, 3, 4],
     [5, 6, 7, 8],
@@ -37,19 +38,45 @@ m = np.array([
     [13, 14, 15, 16]
 ])
 
-k = np.array([
+kernel = np.array([
     [2, 1],
     [0, 3]
 ])
 
+padding = 1
+stride = 2
 
-#submatrix = matrix[:kernel_size[0], :kernel_size[1]]
+#####
 
-print()
+i_len = 1 + (m.shape[0] + 2 * padding - kernel.shape[0]) / stride
+j_len = 1 + (m.shape[1] + 2 * padding - kernel.shape[1]) / stride
 
-'''
-c_11= a_11*b_11 + a_12*b_12 + a_21*b_21 + a_22*b_22
-c_12= a_12*b_11 + a_13*b_12 + a_22*b_21 + a_23*b_22
+print(i_len)
+print(j_len)
 
-c_ij= a_(k+i)(l+j)*b_kl
+i_len = round(i_len)
+j_len = round(j_len)
+
+pad_width_2d = ((padding, padding), (padding, padding)) 
+m_pad = np.pad(m, pad_width_2d, mode='constant', constant_values=0)
+print(m_pad)
+
+x_next = np.zeros((i_len, j_len))
+print(x_next)
+
+for i in range(i_len):
+    for j in range(j_len):
+        m_divided = m_pad[ i*stride : i*stride + kernel.shape[0], j*stride : j*stride + kernel.shape[1]]
+        mk = np.einsum('kl, kl -> kl', m_divided, kernel)
+        x_next[i][j] = np.sum(mk)
+
+        print(f"i : {i}")
+        print(f"j : {j}")
+        print(m_divided)
+        print(kernel)
+        print(mk)
+        print(x_next[i][j])
+        print("--------")
+
+print(x_next)
 '''
