@@ -31,6 +31,7 @@ class ConvolutionLayer:
         self.x = None
         self.w = weight_init_std * np.random.randn(layer_sizes[0], layer_sizes[1])
         self.dw = None
+        self.dx = None
         self.padding = padding
         self.stride = stride
 
@@ -54,3 +55,54 @@ class ConvolutionLayer:
                 x_next[i][j] = np.sum(xw)
         
         return x_next
+    
+    def generate_grad(self, layer_prev):
+        # get dx
+        self.dx = np.zeros(self.x.shape)
+        dxdx = np.array([])
+
+        for i in range(self.x.shape[0]):
+            for j in range(self.x.shape[1]):
+                dxdx_i = np.array([])
+
+                for yi in range(self.x.shape[0]):
+                    for yj in range(self.x.shape[1]):
+                        wi_index = -1
+                        wj_index = -1
+
+                        for wi in range(self.w.shape[0]):
+                            for wj in range(self.w.shape[1]):
+                                if(i == yi * self.stride + wi):
+                                    wi_index = i - yi * self.stride            
+                                if(j == yj * self.stride + wj):
+                                    wj_index = j - yj * self.stride
+
+                        if (wi_index == -1 &  wj_index == -1):
+                            dxdx_i = np.append(0, dxdx_i)
+                        else:
+                            dxdx_i = np.append(self.w[wi_index][wj_index], dxdx_i)
+            
+                dxdx = np.append(dxdx, dxdx_i, axis=0)
+        
+        dx_1d = np.dot(dxdx, layer_prev.dx.flatten())
+        self.dx = np.reshape(dx_1d, self.x.shape)
+
+        # get dw
+        self.dw = np.zeros(self.w.shape)
+        dxdw = np.array([])
+
+        for i in range(self.w.shape[0]):
+            for j in range(self.w.shape[1]):
+                dxdw_i = np.array([])
+
+                for yi in range(self.x.shape[0]):
+                    for yj in range(self.x.shape[1]):
+                        dxdw_i = np.append(self.x[yi * self.stride + i][yj * self.stride + j], dxdw_i)
+                
+                dxdw = np.append(dxdw, dxdw_i, axis=0)
+
+        dw_1d = np.dot(dxdw, layer_prev.dx.flatten())
+        self.dw = np.reshape(dw_1d, self.w.shape)
+
+    def update_grad(self, lerning_rate):
+        self.w -= self.dw * lerning_rate
