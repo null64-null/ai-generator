@@ -80,3 +80,40 @@ for i in range(i_len):
 
 print(x_next)
 '''
+
+# conv backward test
+from network.network import ConvolutionLayer
+
+x = np.array([
+    [1, 2, 3, 4],
+    [5, 6, 7, 8],
+    [9, 10, 11, 12],
+    [13, 14, 15, 16]
+])
+
+kernel = np.array([
+    [2, 1],
+    [0, 3]
+])
+
+layer = ConvolutionLayer(input_size=[4,4], layer_sizes=[2,2], padding=0, stride=1)
+x_next = layer.func(x)
+
+
+class next_layer:
+    def __init__(self, x, dx):
+        self.x = x
+        self.dx = dx
+next_lay = next_layer(x= x_next, dx=np.ones((3,3)))
+
+
+layer.generate_grad(next_lay)
+
+print("=====")
+
+# layer_prev.dx reshape
+# a -> c, c -> a check
+# pooling
+
+
+
