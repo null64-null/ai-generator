@@ -1,119 +1,382 @@
 import os
 import numpy as np
 import time
-
-
-# soft max cal test
-'''
-y = np.array([[1, 2, 1],[1 ,1 ,2]])
-dy = np.array([[3, 2, 1],[0 ,2 ,1]])
-
-delta = np.eye(y.shape[1])
-delta_3d = np.tile(delta[np.newaxis, :, :], (y.shape[0], 1, 1))
-y_3d = y.reshape((y.shape[0], 1, y.shape[1]))
-y_3d_T = np.transpose(y_3d, axes=(0, 2, 1))
-dy_3d = dy.reshape((dy.shape[0], 1, dy.shape[1]))
-dy_3d_T = np.transpose(dy_3d, axes=(0, 2, 1))
-ys_matrix_3d = np.tile(y[:, np.newaxis, :], (1, y.shape[1], 1))
-dxdx_3d = y_3d_T * (delta_3d - ys_matrix_3d)
-dx_3d = np.array([ np.dot(dxdx_3d[i], dy_3d_T[i]) for i in range(dy.shape[0])])
-dx = dx_3d.reshape((dx_3d.shape[0], dx_3d.shape[1]))
-print(dx)
-
-delta = np.eye(y.shape[1])
-delta_3d = np.tile(delta, (y.shape[0], 1, 1))
-ys_matrix_3d = y[:, np.newaxis, :]
-mid_3d = delta_3d - ys_matrix_3d
-dx = np.einsum('ij, ijk, ik -> ij', y, mid_3d, dy)
-#print(dx)
-'''
-
-
-# convolution test
-'''
-m = np.array([
-    [1, 2, 3, 4],
-    [5, 6, 7, 8],
-    [9, 10, 11, 12],
-    [13, 14, 15, 16]
-])
-
-kernel = np.array([
-    [2, 1],
-    [0, 3]
-])
-
-padding = 1
-stride = 2
-
-#####
-
-i_len = 1 + (m.shape[0] + 2 * padding - kernel.shape[0]) / stride
-j_len = 1 + (m.shape[1] + 2 * padding - kernel.shape[1]) / stride
-
-print(i_len)
-print(j_len)
-
-i_len = round(i_len)
-j_len = round(j_len)
-
-pad_width_2d = ((padding, padding), (padding, padding)) 
-m_pad = np.pad(m, pad_width_2d, mode='constant', constant_values=0)
-print(m_pad)
-
-x_next = np.zeros((i_len, j_len))
-print(x_next)
-
-for i in range(i_len):
-    for j in range(j_len):
-        m_divided = m_pad[ i*stride : i*stride + kernel.shape[0], j*stride : j*stride + kernel.shape[1]]
-        mk = np.einsum('kl, kl -> kl', m_divided, kernel)
-        x_next[i][j] = np.sum(mk)
-
-        print(f"i : {i}")
-        print(f"j : {j}")
-        print(m_divided)
-        print(kernel)
-        print(mk)
-        print(x_next[i][j])
-        print("--------")
-
-print(x_next)
-'''
-
-# conv backward test
 from network.network import ConvolutionLayer
 
+# conv y, dy reshape
+'''
+n = 2
+oh = 2
+ow = 3
+fn = 3
+
+dy2 = np.array([
+    [11,21,31],
+    [12,22,32],
+    [13,23,33],
+    [14,24,34],
+    [15,25,35],
+    [16,26,36],
+    [41,51,61],
+    [42,52,62],
+    [43,53,63],
+    [44,54,64],
+    [45,55,65],
+    [46,56,66],
+])
+
+a = dy2.T
+b = a.reshape(fn, n, 1, oh*ow)
+c = b.transpose(1, 0, 2, 3)
+d = c.reshape(n, fn, oh, ow)
+
+dy = np.array([
+    [
+        [
+            [11,12,13],
+            [14,15,16],
+        ],
+        [
+            [21,22,23],
+            [24,25,26],
+        ],
+          [
+            [31,32,33],
+            [34,35,36],
+        ],
+    ],
+    [
+        [
+            [41,42,43],
+            [44,45,46],
+        ],
+        [
+            [51,52,53],
+            [54,55,56],
+        ],
+          [
+            [61,62,63],
+            [64,65,66],
+        ],
+    ],
+])
+
+a1 = dy.reshape(n, fn, 1, oh*ow)
+b1 = a1.transpose(1, 0, 2, 3)
+c1 = b1.reshape(fn, oh*ow*n)
+d1 = c1.T
+
+def compress_y(y, n, fn, oh, ow):
+    return y.reshape(n, fn, 1, oh*ow).transpose(1, 0, 2, 3).reshape(fn, oh*ow*n).T
+
+def deploy_y(y, n, fn, oh, ow):
+    return y.T.reshape(fn, n, 1, oh*ow).transpose(1, 0, 2, 3).reshape(n, fn, oh, ow)
+'''
+
+
+# conv w, dw reshape
+'''
+c = 2
+fn = 3
+fh = 2
+fw = 3
+
+dw2 = np.array([
+    [11,31,51],
+    [12,32,52],
+    [13,33,53],
+    [14,34,54],
+    [15,35,55],
+    [16,36,56],
+    [21,41,61],
+    [22,42,62],
+    [23,43,63],
+    [24,44,64],
+    [25,45,65],
+    [26,46,66],
+])
+
+a = dw2.T
+b = a.reshape(fn, c, fh, fw)
+
+dw = np.array([
+    [
+        [
+            [11,12,13],
+            [14,15,16],
+        ],
+        [
+            [21,22,23],
+            [24,25,26],
+        ],     
+    ],
+    [
+        [
+            [31,32,33],
+            [34,35,36],
+        ],
+        [
+            [41,42,43],
+            [44,45,46],
+        ],
+    ],
+    [
+        [
+            [51,52,53],
+            [54,55,56],
+        ],
+        [
+            [61,62,63],
+            [64,65,66],
+        ],
+    ]
+])
+
+a1 = dw.reshape(fn, fh*fw*c)
+b1 = a1.T
+
+def compress_w(w, fn, c, fh, fw):
+    return w.reshape(fn, fh*fw*c).T
+
+def deploy_w(w, fn, c, fh, fw):
+    return w.T.reshape(fn, c, fh, fw)
+'''
+
+# conv x col T, dx col T reshape
+'''
+n = 2
+c = 3
+h = 2
+w = 3
+
+dx = np.array([
+    [11, 12, 13, 21, 22, 23, 31, 32, 33],
+    [14, 15, 16, 24, 25, 26, 34, 35, 36],
+    [41, 42, 43, 51, 52, 53, 61, 62, 63],
+    [44, 45, 46, 54, 55, 56, 64, 65, 66],
+])
+
+reverse = dx.reshape(n, h, c, w).transpose(0, 2, 1, 3)
+
 x = np.array([
-    [1, 2, 3, 4],
-    [5, 6, 7, 8],
-    [9, 10, 11, 12],
-    [13, 14, 15, 16]
+    [
+        [
+            [11, 12, 13],
+            [14, 15, 16]
+        ],
+        [
+            [21, 22, 23],
+            [24, 25, 26]
+        ],
+        [
+            [31, 32, 33],
+            [34, 35, 36],
+        ],
+    ],
+    [
+        [
+            [41, 42, 43],
+            [44, 45, 46]
+        ],
+        [
+            [51, 52, 53],
+            [54, 55, 56]
+        ],
+        [
+            [61, 62, 63],
+            [64, 65, 66]
+        ],
+    ],
 ])
 
-kernel = np.array([
-    [2, 1],
-    [0, 3]
+com = x.transpose(0, 2, 1, 3).reshape(n*h, c*w)
+
+def compress_xcol(x, n, c, h, w):
+    return x.transpose(0, 2, 1, 3).reshape(n*h, c*w)
+
+def deploy_xcol(x, n, c, h, w):
+    return x.reshape(n, h, c, w).transpose(0, 2, 1, 3)
+'''
+
+
+
+# b, db
+'''
+dy = np.array([
+    [
+        [
+            [11,12,13],
+            [14,15,16],
+        ],
+        [
+            [21,22,23],
+            [24,25,26],
+        ],
+          [
+            [31,32,33],
+            [34,35,36],
+        ],
+    ],
+    [
+        [
+            [41,42,43],
+            [44,45,46],
+        ],
+        [
+            [51,52,53],
+            [54,55,56],
+        ],
+          [
+            [61,62,63],
+            [64,65,66],
+        ],
+    ],
 ])
 
-layer = ConvolutionLayer(input_size=[4,4], layer_sizes=[2,2], padding=0, stride=1)
+b = np.array([1,2,3])
+c = b.reshape(3,1,1)
+print(c)
+print(dy + c)
+'''
+
+n = 2
+c = 3
+h = 3
+w = 3
+
+x = np.array([
+    [
+        [
+            [11,12,13],
+            [14,15,16],
+            [17,18,19],
+        ],
+        [
+            [21,22,23],
+            [24,25,26],
+            [27,28,29],
+        ],
+          [
+            [31,32,33],
+            [34,35,36],
+            [37,38,39],
+        ],
+    ],
+    [
+        [
+            [41,42,43],
+            [44,45,46],
+            [47,48,49],
+        ],
+        [
+            [51,52,53],
+            [54,55,56],
+            [57,58,59],
+        ],
+          [
+            [61,62,63],
+            [64,65,66],
+            [67,68,69],
+        ],
+    ],
+])
+
+fn = 3
+c = 3
+fh = 2
+fw = 2
+
+f = np.array([
+    [
+        [
+            [11,12],
+            [13,14],
+        ],
+        [
+            [21,22],
+            [23,24],
+        ],
+        [
+            [31,32],
+            [33,34],
+        ],
+    ],
+    [
+        [
+            [41,42],
+            [43,44],
+        ],
+        [
+            [51,52],
+            [53,54],
+        ],
+        [
+            [61,62],
+            [63,64],
+        ],
+    ],
+    [
+        [
+            [71,72],
+            [73,74],
+        ],
+        [
+            [81,82],
+            [83,84],
+        ],
+        [
+            [91,92],
+            [93,94],
+        ],
+    ],
+])
+
+a = np.array([
+    [
+        [
+            [11,12],
+            [13,14],
+        ],
+        [
+            [21,22],
+            [23,24],
+        ],
+        [
+            [31,32],
+            [33,34],
+        ],
+    ],
+    [
+        [
+            [41,42],
+            [43,44],
+        ],
+        [
+            [51,52],
+            [53,54],
+        ],
+        [
+            [61,62],
+            [63,64],
+        ],
+    ],
+])
+
+class NextLayer:
+    def __init__(self, x_next):
+        self.x = x_next
+        self.dx = a
+
+layer = ConvolutionLayer([n,c,h,w], [fn,c,fh,fw], 0, 1)
+
 x_next = layer.func(x)
+layer_prev = NextLayer(x_next)
+
+layer.generate_grad(layer_prev)
+
+print(layer.dx)
 
 
-class next_layer:
-    def __init__(self, x, dx):
-        self.x = x
-        self.dx = dx
-next_lay = next_layer(x= x_next, dx=np.ones((3,3)))
-
-
-layer.generate_grad(next_lay)
-
-print("=====")
-
-# layer_prev.dx reshape
-# a -> c, c -> a check
-# pooling
 
 
 

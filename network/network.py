@@ -1,5 +1,5 @@
 import numpy as np
-from .initialize import w_init, b_init, c_init
+from network.functions.convolution_functions import im2col, col2im, compress_xcol, compress_w, compress_z, deploy_xcol, deploy_w, deploy_z
 
 # network for affine
 class AffineLayer:
@@ -27,105 +27,83 @@ class AffineLayer:
 
 # network for conb
 class ConvolutionLayer:
-    def __init__(self, input_size, layer_sizes, padding, stride, weight_init_std=0.01):
-        self.x = None
-        self.w = weight_init_std * np.random.randn(layer_sizes[0], layer_sizes[1])
-        self.dw = None
+    def __init__(self, input_size, filter_sizes, pad, st, weight_init_std=0.01):        
+        self.input_size = input_size #(n, c, h, w)
+        self.filter_size = filter_sizes #(fn, c, fh, fw)
+        n, c, h, w = self.input_size
+        fn, c, fh, fw = self.filter_size
+
+        self.pad = pad
+        self.st = st
+    
+        self.x = None 
+        self.w = weight_init_std * np.random.randn(fn, c, fh, fw)
+        self.b = weight_init_std * np.random.randn(fn)
+        
         self.dx = None
-        self.input_size = input_size
-        self.padding = padding
-        self.stride = stride
+        self.dw = None
+        self.db = None
+
+        self.x_com = None
+        self.w_com = None
 
     def func(self, x):
-        if (np.ndim(x) == 1):
-            x = x.reshape(x, self.input_size)
-        self.x = x
+        n, c, h, w = self.input_size
+        fn, c, fh, fw = self.filter_size
 
-        output_shape = output_size(
-            input_size=self.x.shape,
-            filter_sizes=self.w.shape,
-            padding=self.padding,
-            stride=self.stride
-        )
+        oh = round(1 + (h + 2 * self.pad - fh) / self.st)
+        ow = round(1 + (w + 2 * self.pad - fw) / self.st)
 
-        x_next = np.zeros((output_shape[0], output_shape[1]))
-        x_pad_width = ((self.padding, self.padding), (self.padding, self.padding)) 
-        x_pad = np.pad(self.x, x_pad_width, mode='constant', constant_values=0)
-
-        for i in range(output_shape[0]):
-            for j in range(output_shape[1]):
-                x_divided = x_pad[ i*self.stride : i*self.stride + self.w.shape[0], j*self.stride : j*self.stride + self.w.shape[1]]
-                xw = np.einsum('kl, kl -> kl', x_divided, self.w)
-                x_next[i][j] = np.sum(xw)
+        # colize and compress x
+        x_col = im2col(x, fh, fw, self.pad, self.st)
+        x_col_T = x_col.transpose(0, 1, 3, 2)
+        x_com = compress_xcol(x_col_T, n, c, oh*ow, fh*fw)
         
+        # compress w
+        w_com = compress_w(self.w, fn, c, fh, fw)
+       
+        # convolute
+        z_com = np.dot(x_com, w_com)
+
+        # deploy z
+        z = deploy_z(z_com, n, fn, oh, ow)
+    
+        # verticalize b
+        b_ver = self.b.reshape(fn, 1, 1)
+
+        # add bias
+        x_next = z + b_ver
+
+        # save params
+        self.x = x
+        self.x_com = x_com
+        self.w_com = w_com
+
         return x_next
     
     def generate_grad(self, layer_prev):
-        # get dx
-        self.dx = np.zeros(self.x.shape)
-        dxdx = np.array([])
+        n, fn, oh, ow = layer_prev.x.shape
+        n, c, h, w = self.input_size
+        fn, c, fh, fw = self.filter_size
 
-        for i in range(self.x.shape[0]):
-            for j in range(self.x.shape[1]):
-                dxdx_i = np.array([])
+        dx_next = layer_prev.dx
 
-                for yi in range(layer_prev.x.shape[0]):
-                    for yj in range(layer_prev.x.shape[1]):
-                        wi_index = -1
-                        wj_index = -1
+        dz = dx_next
+        dz_com = compress_z(dz, n, fn, oh, ow)
 
-                        for wi in range(self.w.shape[0]):
-                            for wj in range(self.w.shape[1]):
-                                if(i == yi * self.stride + wi):
-                                    wi_index = i - yi * self.stride            
-                                if(j == yj * self.stride + wj):
-                                    wj_index = j - yj * self.stride
-
-                        if (wi_index == -1 &  wj_index == -1):
-                            dxdx_i = np.append(0, dxdx_i)
-                        else:
-                            dxdx_i = np.append(self.w[wi_index][wj_index], dxdx_i)
-            
-                dxdx = np.append(dxdx, dxdx_i, axis=0)
+        dx_com = np.dot(dz_com, self.w_com.T)        
+        dx_col_T = deploy_xcol(dx_com, n, c, oh*ow, fh*fw)
+        dx_col = dx_col_T.transpose(0, 1, 3, 2)
+        dx = col2im(dx_col, fh, fw, oh, ow, self.pad, self.st)
+        self.dx = dx
         
-        dxdx = np.reshape(dxdx, (self.x.size, layer_prev.x.size))     
-        dx_1d = np.dot(dxdx, layer_prev.dx.flatten())
-        self.dx = np.reshape(dx_1d, self.x.shape)
+        dw_com = np.dot(self.x_com.T, dz_com)
+        dw = deploy_w(dw_com, fn, c, fh, fw)
+        self.dw = dw
 
-        # get dw
-        self.dw = np.zeros(self.w.shape)
-        dxdw = np.array([])
-
-        for i in range(self.w.shape[0]):
-            for j in range(self.w.shape[1]):
-                dxdw_i = np.array([])
-
-                for yi in range(layer_prev.x.shape[0]):
-                    for yj in range(layer_prev.x.shape[1]):
-                        dxdw_i = np.append(self.x[yi * self.stride + i][yj * self.stride + j], dxdw_i)
-                
-                dxdw = np.append(dxdw, dxdw_i, axis=0)
-
-        dxdw = np.reshape(dxdw, (self.w.size, layer_prev.x.size))
-        dw_1d = np.dot(dxdw, layer_prev.dx.flatten())
-        self.dw = np.reshape(dw_1d, self.w.shape)
+        db = np.sum(dx_next, axis=(0, 2, 3))
+        self.db = db
 
     def update_grad(self, lerning_rate):
         self.w -= self.dw * lerning_rate
-
-
-def output_size(input_size, filter_sizes, padding, stride):
-    i_len = 1 + (input_size[0] + 2 * padding - filter_sizes[0]) / stride
-    j_len = 1 + (input_size[1] + 2 * padding - filter_sizes[1]) / stride
-
-    i_len_int = round(i_len)
-    j_len_int = round(j_len)
-    i_len_float = round(i_len)
-    j_len_float = round(j_len)
-    
-    if (i_len - i_len_float > 0 or j_len - j_len_float > 0):
-        print("==================================================")
-        print(f"error : output size is not int ({i_len}, {j_len})")
-        print("==================================================")
-
-    return [i_len_int, j_len_int]
+        self.b -= self.db * lerning_rate

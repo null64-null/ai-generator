@@ -4,7 +4,7 @@ import numpy as np
 from util.graph import chart
 from util.progress import show_iter_progress
 
-from network.activation_function import Relu, Sigmoid, Tanh, Softmax
+from network.activation import Relu, Sigmoid, Tanh, Softmax
 from network.network import AffineLayer
 from propagetion.loss import CrossEntropyError
 from propagetion.predict import predict, accuracy
