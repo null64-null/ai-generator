@@ -25,6 +25,7 @@ class AffineLayer:
         self.w -= self.dw * lerning_rate
         self.b -= self.db * lerning_rate
 
+
 # network for conb
 class ConvolutionLayer:
     def __init__(self, input_size, filter_sizes, pad, st, weight_init_std=0.01):        
@@ -109,6 +110,7 @@ class ConvolutionLayer:
         self.b -= self.db * lerning_rate
 
 
+# joint convolution and affine
 class FlattenSection:
     def __init__(self):
         self.x = None
