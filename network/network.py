@@ -107,3 +107,24 @@ class ConvolutionLayer:
     def update_grad(self, lerning_rate):
         self.w -= self.dw * lerning_rate
         self.b -= self.db * lerning_rate
+
+
+class FlattenSection:
+    def __init__(self):
+        self.x = None
+        self.dx = None
+
+    def func(self, x):
+        _, _, h, w = x.shape
+        
+        x_next = x.reshape(-1, h*w)
+
+        self.x = x
+        return x_next
+    
+    def generate_grad(self, layer_prev):
+        dx_next = layer_prev.dx #flat
+        self.dx = dx_next.reshape(self.x.shape)
+        
+        
+
