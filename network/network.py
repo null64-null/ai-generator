@@ -28,10 +28,10 @@ class AffineLayer:
 
 # network for conb
 class ConvolutionLayer:
-    def __init__(self, input_size, filter_sizes, pad, st, weight_init_std=0.01):        
-        self.input_size = input_size #(n, c, h, w)
-        self.filter_size = filter_sizes #(fn, c, fh, fw)
-        n, c, h, w = self.input_size
+    def __init__(self, filter_size, pad, st, weight_init_std=0.01):        
+        # self.input_size = input_size #(n, c, h, w)
+        self.filter_size = filter_size #(fn, c, fh, fw)
+        # n, c, h, w = self.input_size
         fn, c, fh, fw = self.filter_size
 
         self.pad = pad
@@ -49,7 +49,8 @@ class ConvolutionLayer:
         self.w_com = None
 
     def func(self, x):
-        n, c, h, w = self.input_size
+        n, c, h, w = x.shape
+        #n, c, h, w = self.input_size
         fn, c, fh, fw = self.filter_size
 
         oh = round(1 + (h + 2 * self.pad - fh) / self.st)
@@ -84,7 +85,8 @@ class ConvolutionLayer:
     
     def generate_grad(self, layer_prev):
         n, fn, oh, ow = layer_prev.x.shape
-        n, c, h, w = self.input_size
+        n, c, h, w = self.x.shape
+        # n, c, h, w = self.input_size
         fn, c, fh, fw = self.filter_size
 
         dx_next = layer_prev.dx
@@ -117,9 +119,9 @@ class FlattenSection:
         self.dx = None
 
     def func(self, x):
-        _, _, h, w = x.shape
+        n, _, _, _ = x.shape
         
-        x_next = x.reshape(-1, h*w)
+        x_next = x.reshape(n, -1)
 
         self.x = x
         return x_next
@@ -127,6 +129,5 @@ class FlattenSection:
     def generate_grad(self, layer_prev):
         dx_next = layer_prev.dx #flat
         self.dx = dx_next.reshape(self.x.shape)
-        
         
 

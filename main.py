@@ -5,40 +5,72 @@ from util.graph import chart
 from util.progress import show_iter_progress
 
 from network.activation import Relu, Sigmoid, Tanh, Softmax
-from network.network import AffineLayer
+from network.network import AffineLayer, ConvolutionLayer, FlattenSection
 from propagetion.loss import CrossEntropyError
 from propagetion.predict import predict, accuracy
 from propagetion.gradient import generate_grads, update_grads
+from util.picture import row2im
 
-
-### mnist ###
+# mnist 
 sys.path.append(os.pardir)
 from mnist.mnist import load_mnist
 
+
 ### input ###
+#input
+# make input test　(x_train, t_train), (x_test, t_test), image shape
 (x_train, t_train), (x_test, t_test) = load_mnist(one_hot_label=True, normalize=True)
 train_data_length = x_train.shape[0]
 test_data_length = x_test.shape[0]
+x_train = x_train.reshape(train_data_length, 1, 28, 28)
+x_test = x_test.reshape(test_data_length, 1, 28, 28)
+
+batch_size = 100 #input
+
+
+### network ###
+error = CrossEntropyError()  #input
+lerning_rate = 0.1  #input
 
 # layers
+# st = 1, pad = 0
+# oh = 1 + (h + 2 * pad - fh) / st
+# ow = 1 + (w + 2 * pad - fw) / st
 layers = [
-    AffineLayer([784, 500]),
+    # (n, c, h, w) = (batch_size, 1, 28, 28)
+
+    ConvolutionLayer(
+        # input_size=[batch_size, 1, 28, 28],
+        filter_size=[5, 1, 6, 6],
+        pad = 0,
+        st = 1
+    ),
     Relu(),
-    AffineLayer([500, 100]),
+    # (n, fn, oh, ow) = (batch_size, 5, 23, 23)
+
+    ConvolutionLayer(
+        # input_size=[batch_size, 5, 23, 23],
+        filter_size=[10, 5, 12, 12],
+        pad = 0,
+        st = 1
+    ),
     Relu(),
-    AffineLayer([100, 10]),
+    # (n, fn, oh, ow) = (batch_size, 10, 12, 12)
+
+    FlattenSection(), 
+    # (h, w) = (batch_size, 12*12*10) = (batch_size, 1440)
+
+    AffineLayer([1440, 10]),
     Softmax(),
-]
+] #input
 
-error = CrossEntropyError()
-lerning_rate = 0.1
-batch_size = 100
-iters = 10000
-
+### times learning, accuracy check span  ###
+iters = 10000 #input
+accuracy_check_span = 100 #input
 iter_per_epoch = max(train_data_length / batch_size, 1) # Howmany iters per epoch 
-accuracy_check_span = 100
 
-### main, learning ###
+
+# main, learning 
 predictions_result = []
 errors_result = []
 accuracy_result_train_data = []
@@ -64,6 +96,8 @@ for i in range(iters):
     # update parameters in layers
     update_grads(layers, lerning_rate)
 
+
+    '''
     # if 1 epoch done, check accuracy 
     # if i % iter_per_epoch == 0:
     if i % accuracy_check_span == 0:
@@ -76,6 +110,7 @@ for i in range(iters):
         accuracy_result_test_data.append(test_data_accuracy)
         accuracy_x_axis.append(i+1)
         
+    '''
     # recode results (prediction, error)
     predictions_result.append(prediction)
     errors_result.append(error.l)
