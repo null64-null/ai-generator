@@ -10,7 +10,6 @@ from network.network import AffineLayer, ConvolutionLayer, FlattenSection
 from propagetion.loss import CrossEntropyError
 from propagetion.predict import predict, accuracy, calculate_accuracy
 from propagetion.gradient import generate_grads, update_grads
-from util.picture import row2im
 
 # mnist 
 sys.path.append(os.pardir)
