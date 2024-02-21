@@ -6,10 +6,12 @@ def show_iter_progress(
         iters,
         error,
         accuracy_check_span,
-        train_data_length,
-        test_data_length,
-        accuracy_result_train_data,
-        accuracy_result_test_data,
+        accurate_predictions_train,
+        all_data_train,
+        accuracy_ratio_train,
+        accurate_predictions_test,
+        all_data_test,
+        accuracy_ratio_test,
         accuracy_x_axis,
     ):
 
@@ -32,10 +34,8 @@ def show_iter_progress(
     print(" ")
     try:
         if( len(accuracy_x_axis) != 0 ):
-            percent_tr = ( accuracy_result_train_data[-1] / train_data_length ) * 100
-            print(f"accuracy (train) : {accuracy_result_train_data[-1]} / {train_data_length}   ( {percent_tr:.2f} % )")
-            percent_te = ( accuracy_result_test_data[-1] / test_data_length ) * 100
-            print(f"accuracy (test)  : {accuracy_result_test_data[-1]} / {test_data_length}   ( {percent_te:.2f} % )")
+            print(f"accuracy (train) : {accurate_predictions_train} / {all_data_train}   ( {accuracy_ratio_train:.2f} % )")
+            print(f"accuracy (test)  : {accurate_predictions_test} / {all_data_test}   ( {accuracy_ratio_test:.2f} % )")
     except:
         pass
 

@@ -1,13 +1,14 @@
 import sys, os
 import numpy as np
+import matplotlib.pyplot as plt
 
-from util.graph import chart
+from util.graph import show_graphs, show_results
 from util.progress import show_iter_progress
 
 from network.activation import Relu, Sigmoid, Tanh, Softmax
 from network.network import AffineLayer, ConvolutionLayer, FlattenSection
 from propagetion.loss import CrossEntropyError
-from propagetion.predict import predict, accuracy
+from propagetion.predict import predict, accuracy, calculate_accuracy
 from propagetion.gradient import generate_grads, update_grads
 from util.picture import row2im
 
@@ -65,17 +66,19 @@ layers = [
 ] #input
 
 ### times learning, accuracy check span  ###
-iters = 10000 #input
-accuracy_check_span = 100 #input
+iters = 100 #input
+accuracy_check_span = 50 #input
+check_mask_size_train = 50 #input
+check_mask_size_test = 50 #input
 iter_per_epoch = max(train_data_length / batch_size, 1) # Howmany iters per epoch 
 
 
 # main, learning 
-predictions_result = []
-errors_result = []
-accuracy_result_train_data = []
-accuracy_result_test_data = []
+errors_x_axis = []
+errors = []
 accuracy_x_axis = []
+accuracy_ratios_train = []
+accuracy_ratios_test = []
 
 for i in range(iters):
     # choose train data from data set
@@ -93,55 +96,75 @@ for i in range(iters):
     error.generate_grad(prediction, t)
     generate_grads(layers, error)
 
+    # recode results (error), update graph
+    errors.append(error.l)
+    errors_x_axis.append(i)
+
     # update parameters in layers
     update_grads(layers, lerning_rate)
 
-
-    '''
-    # if 1 epoch done, check accuracy 
-    # if i % iter_per_epoch == 0:
+    # accuracy check
     if i % accuracy_check_span == 0:
+        # get contemporary layer
         test_layers = layers
-        train_data_accuracy = accuracy(x_train, t_train, test_layers)
-        test_data_accuracy = accuracy(x_test, t_test, test_layers)
-        
-        # recode results (accuracy)
-        accuracy_result_train_data.append(train_data_accuracy)
-        accuracy_result_test_data.append(test_data_accuracy)
-        accuracy_x_axis.append(i+1)
-        
-    '''
-    # recode results (prediction, error)
-    predictions_result.append(prediction)
-    errors_result.append(error.l)
 
-    # indicator
+        # get accuracy from train, test data
+        accurate_predictions_train, all_data_train, accuracy_ratio_train = calculate_accuracy(x_train, t_train, test_layers, check_mask_size_train)
+        accurate_predictions_test, all_data_test, accuracy_ratio_test = calculate_accuracy(x_test, t_test, test_layers, check_mask_size_test)
+        
+        # recode results (accuracy), update graph
+        accuracy_ratios_train.append(accuracy_ratio_train)
+        accuracy_ratios_test.append(accuracy_ratio_test)
+        accuracy_x_axis.append(1+i*accuracy_check_span)
+        
+    # indicator iter
     show_iter_progress(
         i+1,
         iters,
         error.l,
         accuracy_check_span,
-        train_data_length,
-        test_data_length,
-        accuracy_result_train_data,
-        accuracy_result_test_data,
+        accurate_predictions_train,
+        all_data_train,
+        accuracy_ratio_train,
+        accurate_predictions_test,
+        all_data_test,
+        accuracy_ratio_test,
         accuracy_x_axis,
     )
 
-ai_generated = layers
+    # show graph
+    show_graphs(
+        x1=errors_x_axis,
+        y1=errors,
+        x2=accuracy_x_axis,
+        y2_1=accuracy_ratios_train,
+        y2_2=accuracy_ratios_test,
+        x1_label='iter [times]',
+        y1_label='error [-]',
+        x2_label='iter [times]',
+        y2_label='accuracy [%]',
+        y1_name='error',
+        y2_1_name='accuracy (train)',
+        y2_2_name='accuracy (test)',
+        title1='error',
+        title2='accuracy',
+    )
 
-chart(
-    x=list(range(iters)),
-    y=errors_result,
-    x_label="iteration",
-    y_label="loss",
-    title="loss",
+# show graph
+show_results(
+    x1=errors_x_axis,
+    y1=errors,
+    x2=accuracy_x_axis,
+    y2_1=accuracy_ratios_train,
+    y2_2=accuracy_ratios_test,
+    x1_label='iter [times]',
+    y1_label='error [-]',
+    x2_label='iter [times]',
+    y2_label='accuracy [%]',
+    y1_name='error',
+    y2_1_name='accuracy (train)',
+    y2_2_name='accuracy (test)',
+    title1='error',
+    title2='accuracy',
 )
 
-chart(
-    x=accuracy_x_axis,
-    y=accuracy_result_test_data,
-    x_label="iteration",
-    y_label="accuracy",
-    title="accuracy (test)",
-)
