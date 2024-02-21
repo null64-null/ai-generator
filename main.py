@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 from util.graph import show_graphs, show_results
 from util.progress import show_iter_progress
+from util.picture import show_filters
 
 from network.activation import Relu, Sigmoid, Tanh, Softmax
 from network.network import AffineLayer, ConvolutionLayer, FlattenSection
@@ -65,8 +66,8 @@ layers = [
 ] #input
 
 ### times learning, accuracy check span  ###
-iters = 100 #input
-accuracy_check_span = 50 #input
+iters = 1000 #input
+accuracy_check_span = 1000 #input
 check_mask_size_train = 50 #input
 check_mask_size_test = 50 #input
 iter_per_epoch = max(train_data_length / batch_size, 1) # Howmany iters per epoch 
@@ -166,4 +167,6 @@ show_results(
     title1='error',
     title2='accuracy',
 )
+
+show_filters(layers)
 
