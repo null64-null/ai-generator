@@ -8,6 +8,7 @@ from util.picture import show_filters
 
 from network.activation import Relu, Sigmoid, Tanh, Softmax
 from network.network import AffineLayer, ConvolutionLayer, FlattenSection
+from network.pooling import MaxPooling, AveragePooling
 from propagetion.loss import CrossEntropyError
 from propagetion.predict import predict, accuracy, calculate_accuracy
 from propagetion.gradient import generate_grads, update_grads
@@ -41,32 +42,26 @@ layers = [
     # (n, c, h, w) = (batch_size, 1, 28, 28)
 
     ConvolutionLayer(
-        # input_size=[batch_size, 1, 28, 28],
-        filter_size=[5, 1, 6, 6],
+        filter_size=[5, 1, 8, 8],
         pad = 0,
         st = 1
     ),
     Relu(),
-    # (n, fn, oh, ow) = (batch_size, 5, 23, 23)
+    # (n, fn, oh, ow) = (batch_size, 5, 21, 21)
 
-    ConvolutionLayer(
-        # input_size=[batch_size, 5, 23, 23],
-        filter_size=[10, 5, 12, 12],
-        pad = 0,
-        st = 1
-    ),
+    MaxPooling(st=3),
     Relu(),
-    # (n, fn, oh, ow) = (batch_size, 10, 12, 12)
+    # (n, fn, oh, ow) = (batch_size, 5, 7, 7)
 
     FlattenSection(), 
-    # (h, w) = (batch_size, 12*12*10) = (batch_size, 1440)
+    # (h, w) = (batch_size, 7*7*5) = (batch_size, 245)
 
-    AffineLayer([1440, 10]),
+    AffineLayer([245, 10]),
     Softmax(),
 ] #input
 
 ### times learning, accuracy check span  ###
-iters = 1000 #input
+iters = 400 #input
 accuracy_check_span = 1000 #input
 check_mask_size_train = 50 #input
 check_mask_size_test = 50 #input
