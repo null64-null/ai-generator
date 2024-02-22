@@ -155,3 +155,16 @@ layer.generate_grad(layer_prev)
 print("=======")
 print(layer_prev.x)
 print(layer.dx)
+
+a = [
+    {
+        'a': 'aaa',
+        'b': [1,2,3]
+    },
+    {
+        'a': 'aaa2',
+        'b': [1,2,4]
+    },
+]
+
+print(a[1]['b'])
