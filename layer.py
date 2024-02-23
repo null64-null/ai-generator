@@ -4,19 +4,19 @@ from network.activation import Relu, Sigmoid, Tanh, Softmax
 
 def layer(layer_type, params):
     if layer_type == 'affine_layer':
-        layer = AffineLayer(layer_sizes = params.layer_sizes)
+        layer = AffineLayer(layer_sizes = params['layer_sizes'])
         return layer
     if layer_type == 'convolution_layer':
-        layer = ConvolutionLayer(filter_size=params.filter_size, pad=params.pad, st=params.st)
+        layer = ConvolutionLayer(filter_size=params['filter_size'], pad=params['pad'], st=params['st'])
         return layer
     if layer_type == 'flatten_section':
         layer = FlattenSection()
         return layer
     if layer_type == 'max_pooling':
-        layer = MaxPooling(st=params.st)
+        layer = MaxPooling(st=params['st'])
         return layer
     if layer_type == 'average_pooling':
-        layer = AveragePooling(st=params.st)
+        layer = AveragePooling(st=params['st'])
         return layer
     if layer_type == 'relu':
         layer = Relu()
@@ -31,12 +31,13 @@ def layer(layer_type, params):
         layer = Softmax()
         return layer
     
-def layers(layer_params):
+def generate_layers(layer_params):
     layers = []
     for layer_param in layer_params:
-        layer_type = layer_param.layer_type
-        params = layer_param.params
+        layer_type = layer_param['layer_type']
+        params = layer_param['params']
         layers.append(layer(layer_type, params))
+    return layers
 
 layer_params = [
     {
