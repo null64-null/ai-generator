@@ -6,11 +6,24 @@ from network.network import AffineLayer, ConvolutionLayer, FlattenSection
 from network.pooling import MaxPooling, AveragePooling
 from propagetion.loss import CrossEntropyError
 from learning import Supervised_learning
+from util.data_processing import generate_data_from_pkl
 
 sys.path.append(os.pardir)
 from mnist.mnist import load_mnist
 
 # data
+# 最終的に、ここはデータセットをまとめたpklファイルを読み込む形にする（以下）
+# 入力値は、trainとtestのpklファイルパスと、画像サイズとする
+'''
+train_file_path = 'train.pkl'           #dummy
+train_image_shape = [5000, 3, 32, 32]   #dummy
+test_file_path = 'test.pkl'             #dummy
+test_image_shape = [1000, 3, 32, 32]    #dummy
+
+x_train, t_train, _ = generate_data_from_pkl(train_file_path, train_image_shape)
+x_test, t_test, _ = generate_data_from_pkl(test_file_path, test_image_shape)
+'''
+
 (x_train, t_train), (x_test, t_test) = load_mnist(one_hot_label=True, normalize=True)
 train_data_length = x_train.shape[0]
 test_data_length = x_test.shape[0]
