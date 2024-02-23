@@ -39,6 +39,25 @@ def show_iter_progress(
     except:
         pass
 
+def show_iter_progress_for_gun(i, iters, picture_check_span):
+
+    os.system('cls' if os.name == 'nt' else 'clear')  
+    
+    percent = ( i / iters ) * 100
+
+    print("======== progress ========")
+    print(" ")
+    print(f"iter  : {i} / {iters}   ( {percent:.2f} % done )")
+    print(" ")
+    print(" ")
+    print(" ")
+    print("======== check picture ========")
+    print(" ")
+    print(f"picture check span :  {picture_check_span}")
+    print(" ")
+    print(f"check point : {i // picture_check_span} / {iters // picture_check_span}")
+    print(" ")
+
 
 
 

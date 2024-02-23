@@ -39,6 +39,7 @@ def generate_layers(layer_params):
         layers.append(layer(layer_type, params))
     return layers
 
+'''
 layer_params = [
     {
         'layer_type': 'convolution_layer',
@@ -79,3 +80,4 @@ layer_params = [
         'params': None
     },
 ]
+'''
