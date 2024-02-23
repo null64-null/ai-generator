@@ -29,23 +29,22 @@ lerning_rate = 0.1
 # oh = 1 + (h + 2 * pad - fh) / st
 # ow = 1 + (w + 2 * pad - fw) / st
 # (n, c, h, w) = (batch_size, 1, 28, 28)
+
 layers = [
     ConvolutionLayer(
-        filter_size=[5, 1, 8, 8],
+        filter_size=[10, 1, 28, 28],
         pad = 0,
         st = 1
     ),
-    Relu(), # (n, fn, oh, ow) = (batch_size, 5, 21, 21)
-    MaxPooling(st=3),
-    Relu(), # (n, fn, oh, ow) = (batch_size, 5, 7, 7)
-    FlattenSection(), # (h, w) = (batch_size, 7*7*5) = (batch_size, 245)
-    AffineLayer([245, 10]),
+    Relu(), # (n, fn, oh, ow) = (batch_size, 10, 1, 1)
+    FlattenSection(), # (h, w) = (batch_size, 1*1*10) = (batch_size, 10)
+    #AffineLayer([10, 10]),
     Softmax(),
 ]
 
 # learning, checking setting
-iters = 1000
-accuracy_check_span = 50
+iters = 10000
+accuracy_check_span = 1000
 check_mask_size_train = 50
 check_mask_size_test = 50
 

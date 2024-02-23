@@ -25,6 +25,15 @@ def show_filters(layers):
                     combined_image = Image.fromarray(combined_image)
                     combined_image.show()
 
+def display_grayscale_image(image):
+    image = Image.fromarray(image.astype(np.uint8))
+    image.show()
+
+def display_color_image(image):
+    image = Image.fromarray(image.astype(np.uint8).transpose(1, 2, 0))
+    image.show()
+
+
 '''
 # 画像の読み込み
 image = Image.open("/Users/yudaihamashima/products/networks/image/617.jpg")  # 画像のファイル名を適切なものに置き換えてください
