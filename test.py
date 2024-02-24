@@ -118,6 +118,7 @@ dx_next = np.array([
 ])
 '''
 
+'''
 x = np.array([
     [
         [
@@ -168,3 +169,59 @@ a = [
 ]
 
 print(a[1]['b'])
+'''
+w = np.array([
+    [
+        [
+            [11,12],
+            [13,14]
+        ],
+        [
+            [21,22],
+            [23,24]
+        ],
+        [
+            [31,32],
+            [33,34]
+        ],
+    ],
+    [
+        [
+            [41,42],
+            [43,44]
+        ],
+        [
+            [51,52],
+            [53,54]
+        ],
+        [
+            [61,62],
+            [63,64]
+        ],
+    ],
+])
+
+#n, c, h, w = x.shape
+#x_flatten = x.reshape(n, c, 1, h*w).transpose(1, 0, 2, 3).reshape(c, n*h*w)
+#print(x_flatten)
+
+#fn, c, fh, fw = w.shape
+#w_com = w.reshape(fn, c, fh*fw).transpose(0, 2, 1).reshape(fn*fh*fw, c)
+#print(w_com)
+
+z = np.array([
+    [11,12,13,41,42,43],
+    [14,15,16,44,45,46],
+    [21,22,23,51,52,53],
+    [24,25,26,54,55,56],
+    [31,32,33,61,62,63],
+    [34,35,36,64,65,66],
+])
+
+n = 2
+c = 3
+oh = 2
+ow = 3
+
+z = z.reshape(c, n, oh, ow).transpose(0,2,1,3).transpose(1, 0, 2, 3)
+print(z)

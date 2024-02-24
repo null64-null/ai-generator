@@ -48,7 +48,6 @@ class ConvolutionLayer:
 
     def func(self, x):
         n, c, h, w = x.shape
-        #n, c, h, w = self.input_size
         fn, c, fh, fw = self.filter_size
 
         oh = round(1 + (h + 2 * self.pad - fh) / self.st)
@@ -127,6 +126,46 @@ class DeconvolutionLayer:
 
         self.x_com = None
         self.w_com = None
+
+    def func(self, x):
+        n, c, w, h = x.shape
+        fn, c, fh, fw = self.filter_size
+
+        oh = (h - 1)*self.st - self.pad*2 + fh
+        ow = (h - 1)*self.st - self.pad*2 + fw
+
+        # compress x
+        x_com = x.reshape(n, c, 1, h*w).transpose(1, 0, 2, 3).reshape(c, n*h*w)
+
+        # compress w
+        w_com = w.reshape(fn, c, fh*fw).transpose(0, 2, 1).reshape(fn*fh*fw, c)
+
+        # convolute
+        z_com = np.dot(w_com, x_com)
+
+        # deploy z
+        z_col = z_com.reshape(c, n, fh*fw, h*w).transpose(0,2,1,3).transpose(1, 0, 2, 3)
+        z = col2im(z_col, fh, fw, oh, ow, self.pad, self.st) #要確認
+
+        # verticalize b
+        b_ver = self.b.reshape(fn, 1, 1)
+
+        # add bias
+        x_next = z + b_ver
+
+        # save params
+        self.x = x
+        self.x_com = x_com
+        self.w_com = w_com
+
+        return x_next
+
+
+
+
+
+
+
 
 # joint convolution and affine
 class FlattenSection:
