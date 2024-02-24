@@ -25,7 +25,31 @@ error = CrossEntropyError()
 lerning_rate = 0.1
 
 generator_layers_params = [
-    
+    # (h, w) = (batch_size, 10)
+    {
+        'layer_type': 'affine_layer',
+        'params': {
+            'layer_size': [10, 10],
+        }
+    },
+    {
+        'layer_type': 'relu',
+        'params': {}
+    },
+    {
+        'layer_type': 'verticalize_section',
+        'params': {
+            'next_layer_size': [100, 1, 5, 5]
+        }
+    },
+    # (h, w) = (batch_size, 1, 5, 5)
+    {
+        'layer_type': 'deconvolution_layer',
+        'params': {
+            
+        }
+    },
+    # (h, w) = (batch_size, 1, 28, 28)
 ]
 
 discriminator_layers_params = [
