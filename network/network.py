@@ -126,6 +126,25 @@ class FlattenSection:
     
     def generate_grad(self, layer_prev):
         dx_next = layer_prev.dx #flat
-        self.dx = dx_next.reshape(self.x.shape)
+        self.dx = dx_next.reshape(self.x.shape) #vertical
         
+
+# joint convolution and affine
+class VerticalizeSection:
+    def __init__(self):
+        self.x = None
+        self.dx = None
+
+    def func(self, x, next_x_shape):
+        n, chw = x.shape
+        _, c, oh, ow = next_x_shape
+        
+        x_next = x.reshape(n, c, oh, ow)
+
+        self.x = x
+        return x_next
+    
+    def generate_grad(self, layer_prev):
+        dx_next = layer_prev.dx #vertical
+        self.dx = dx_next.reshape(self.x.shape) #flat
 

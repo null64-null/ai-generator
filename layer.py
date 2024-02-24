@@ -1,4 +1,4 @@
-from network.network import AffineLayer, ConvolutionLayer, FlattenSection
+from network.network import AffineLayer, ConvolutionLayer, FlattenSection, VerticalizeSection
 from network.pooling import MaxPooling, AveragePooling
 from network.activation import Relu, Sigmoid, Tanh, Softmax
 
@@ -11,6 +11,9 @@ def layer(layer_type, params):
         return layer
     if layer_type == 'flatten_section':
         layer = FlattenSection()
+        return layer
+    if layer_type == 'verticalize_section':
+        layer = VerticalizeSection(next_layer_size = params['next_layer_size'])
         return layer
     if layer_type == 'max_pooling':
         layer = MaxPooling(st=params['st'])
