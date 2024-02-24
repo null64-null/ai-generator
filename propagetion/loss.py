@@ -19,3 +19,7 @@ class CrossEntropyError:
         batch_size = x.shape[0]
         self.dx = -( t / x ) / batch_size
     
+    def initialize(self):
+        self.x = None
+        self.dx = None
+        self.l = None

@@ -21,9 +21,7 @@ class Gun:
 
         self.generator_layers = generator_layers
         self.discriminator_layers = discriminator_layers
-        self.generator_error = error
-        self.discriminator_error_fake = error
-        self.discriminator_error_auth = error
+        self.error = error
 
         self.lerning_rate = learning_params['lerning_rate']
         self.iters = learning_params['iters']
@@ -51,23 +49,29 @@ class Gun:
             discriminations = predict(generated_pictures, self.discriminator_layers)
 
             # judge (t = 0 "true")
-            self.generator_error.generate_error(discriminations, auth)
+            self.error.generate_error(discriminations, auth)
 
             # calculate gradients (only generator_layer)
-            self.generator_error.generate_grad(discriminations, auth) #要確認
-            generate_grads(self.generator_layers, self.generator_error)
+            self.error.generate_grad(discriminations, auth) #要確認
+            generate_grads(self.generator_layers, self.error)
 
             # update params (only generator_layer)
             update_grads(self.generator_layers, self.lerning_rate)
 
+            # error reset
+            self.error.initialize()
+
 
             ######## discriminator が generator の画像を 1 "fake" にできるように discriminator を更新 ########
             # calculate gradients (only discriminator_layer)
-            self.discriminator_error_fake.generate_grad(discriminations, fake)
-            generate_grads(self.discriminator_layers, self.discriminator_error_fake)
+            self.error.generate_grad(discriminations, fake)
+            generate_grads(self.discriminator_layers, self.error)
 
             # update params (only discriminator_layer)
             update_grads(self.discriminator_layers, self.lerning_rate)
+            
+            # error reset
+            self.error.initialize()
 
 
             ########### discriminator が 本物の画像を 0 "auth" にできるように discriminator を再更新 ##########
@@ -75,14 +79,17 @@ class Gun:
             discriminations = predict(x_auth, self.discriminator_layers)
 
             # judge (t = 0 "auth")
-            self.discriminator_error_auth.generate_error(discriminations, auth)
+            self.error.generate_error(discriminations, auth)
 
             # calculate gradients (only discriminator_layer)
-            self.discriminator_error_auth.generate_grad(discriminations, auth)
-            generate_grads(self.discriminator_layers, self.discriminator_error_auth)
+            self.error.generate_grad(discriminations, auth)
+            generate_grads(self.discriminator_layers, self.error)
 
             # update params (only discriminator_layer)
             update_grads(self.discriminator_layers, self.lerning_rate)
+
+            # error reset
+            self.error.initialize()
             ############################################################################################
 
 

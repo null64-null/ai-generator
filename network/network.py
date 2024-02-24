@@ -28,10 +28,8 @@ class AffineLayer:
 
 # network for conb
 class ConvolutionLayer:
-    def __init__(self, filter_size, pad, st, weight_init_std=0.01):        
-        # self.input_size = input_size #(n, c, h, w)
-        self.filter_size = filter_size #(fn, c, fh, fw)
-        # n, c, h, w = self.input_size
+    def __init__(self, filter_size, pad, st, weight_init_std=0.01):
+        self.filter_size = filter_size
         fn, c, fh, fw = self.filter_size
 
         self.pad = pad
