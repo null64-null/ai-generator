@@ -52,8 +52,9 @@ class Gun:
             self.error.generate_error(discriminations, auth)
 
             # calculate gradients (only generator_layer)
-            self.error.generate_grad(discriminations, auth) #要確認
-            generate_grads(self.generator_layers, self.error)
+            self.error.generate_grad(discriminations, auth)
+            generate_grads(self.discriminator_layers, self.error)
+            generate_grads(self.generator_layers, self.discriminator_layers[0])
 
             # update params (only generator_layer)
             update_grads(self.generator_layers, self.lerning_rate)

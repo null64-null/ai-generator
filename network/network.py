@@ -109,6 +109,24 @@ class ConvolutionLayer:
         self.w -= self.dw * lerning_rate
         self.b -= self.db * lerning_rate
 
+class DeconvolutionLayer:
+    def __init__(self, filter_size, pad, st, weight_init_std=0.01):
+        self.filter_size = filter_size
+        fn, c, fh, fw = self.filter_size
+
+        self.pad = pad
+        self.st = st
+    
+        self.x = None 
+        self.w = weight_init_std * np.random.randn(fn, c, fh, fw)
+        self.b = weight_init_std * np.random.randn(fn)
+        
+        self.dx = None
+        self.dw = None
+        self.db = None
+
+        self.x_com = None
+        self.w_com = None
 
 # joint convolution and affine
 class FlattenSection:
