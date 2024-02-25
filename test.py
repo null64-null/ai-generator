@@ -170,6 +170,9 @@ a = [
 
 print(a[1]['b'])
 '''
+
+
+'''
 dw = np.array([
     [
         [
@@ -236,6 +239,8 @@ print(dx)
 #fn, c, fh, fw = w.shape
 #w_com = w.reshape(fn, c, fh*fw).transpose(0, 2, 1).reshape(fn*fh*fw, c)
 #print(w_com)
+
+'''
 
 
 
