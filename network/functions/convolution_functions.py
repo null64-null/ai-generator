@@ -1,10 +1,10 @@
 import numpy as np
 
-def im2col(input, fh, fw, pad, st):
-    n, c, h, w = input.shape
+def im2col(input, fh, fw, oh, ow, pad, st):
+    n, c, _, _ = input.shape
 
-    oh = round(1 + (h + 2 * pad - fh) / st)
-    ow = round(1 + (w + 2 * pad - fw) / st)
+    #oh = round(1 + (h + 2 * pad - fh) / st)
+    #ow = round(1 + (w + 2 * pad - fw) / st)
 
     col = np.zeros((n, c, fh*fw, oh*ow))
     imput_pad = np.pad(input, ((0, 0), (0, 0), (pad, pad),(pad, pad)), mode='constant', constant_values=0)
@@ -16,14 +16,16 @@ def im2col(input, fh, fw, pad, st):
 
     return col
 
-def col2im(col, fh, fw, oh, ow, pad, st):
+def col2im(col, fh, fw, h, w, oh, ow, pad, st):
     n, c, _, _ = col.shape
 
-    h = round((oh - 1) * st - 2 * pad + fh)
-    w = round((ow - 1) * st - 2 * pad + fw)
+    #h = round((oh - 1) * st - 2 * pad + fh)
+    #w = round((ow - 1) * st - 2 * pad + fw)
 
     input = np.zeros((n, c, h, w))
     input_pad = np.zeros((n, c, h+pad*2, w+pad*2))
+    #input = np.array([])
+    #input_pad = np.array([])
 
     for i in range(fh):
         for j in range(fw):

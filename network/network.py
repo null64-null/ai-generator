@@ -54,7 +54,7 @@ class ConvolutionLayer:
         ow = round(1 + (w + 2 * self.pad - fw) / self.st)
 
         # colize and compress x
-        x_col = im2col(x, fh, fw, self.pad, self.st)
+        x_col = im2col(x, fh, fw, oh, ow, self.pad, self.st)
         x_col_T = x_col.transpose(0, 1, 3, 2)
         x_com = compress_xcol(x_col_T, n, c, oh*ow, fh*fw)
         
@@ -94,7 +94,7 @@ class ConvolutionLayer:
         dx_com = np.dot(dz_com, self.w_com.T)        
         dx_col_T = deploy_xcol(dx_com, n, c, oh*ow, fh*fw)
         dx_col = dx_col_T.transpose(0, 1, 3, 2)
-        dx = col2im(dx_col, fh, fw, oh, ow, self.pad, self.st)
+        dx = col2im(dx_col, fh, fw, h, w, oh, ow, self.pad, self.st)
         self.dx = dx
         
         dw_com = np.dot(self.x_com.T, dz_com)
