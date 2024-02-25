@@ -61,6 +61,40 @@ class AveragePooling:
         dx_next_reshaped = layer_prev.dx.reshape(n, c, oh, ow, 1, 1)
         dx_next_filtered = self.dx_filter * dx_next_reshaped
         self.dx = dx_next_filtered.transpose(0,1,2,4,3,5).reshape(n, c, w, h)
+
+
+class NNUnpooling:
+    def __init__(self, st):
+        self.st = st
+        self.x = None
+        self.dx = None
+    
+    def func(self, x):
+        n, c, h, w = x.shape
+
+        oh = h * self.st
+        ow = w * self.st
+
+        ones = np.ones((n, c, oh, ow))
+        ones = ones.reshape(n, c, h, w, self.st, self.st)
+
+        x_reshaped = x.reshape(n, c, h, w, 1, 1)
+
+        x_next = ones * x_reshaped
+        x_next = x_next.transpose(0,1,2,4,3,5).reshape(n, c, oh, ow)
+
+        self.x = x
+        return x_next
+    
+    def generate_grad(self, layer_prev):
+        n, c, h, w = self.x.shape
+
+        dx_next = layer_prev.dx
+        dx = dx_next.reshape(n, c, h, w, self.st, self.st).transpose(0,1,2,4,3,5).sum(axis=(4,5))
+
+        self.dx = dx
+
+
         
         
         

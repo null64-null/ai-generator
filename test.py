@@ -297,3 +297,76 @@ dz = dz.transpose(1, 0, 2, 3).transpose(0,2,1,3).reshape(6, 6)
 print(dz)
 '''
 
+x = np.array([
+    [
+        [
+            [11,12],
+            [13,14],
+        ],
+        [
+            [21,22],
+            [23,24],
+        ],
+          [
+            [31,32],
+            [33,34],
+        ],
+    ],
+])
+
+dx = np.array([
+    [
+        [
+            [11, 11, 12, 12],
+            [11, 11, 12, 12],
+            [13, 13, 14, 14],
+            [13, 13, 14, 14],
+        ],
+        [
+            [21, 21, 22, 22],
+            [21, 21, 22, 22],
+            [23, 23, 24, 24],
+            [23, 23, 24, 24],
+        ],
+          [
+            [31, 31, 32, 32],
+            [31, 31, 32, 32],
+            [33, 33, 34, 34],
+            [33, 33, 34, 34],
+        ],
+    ],
+])
+
+n = 1
+c = 3
+h = 2
+w = 2
+
+ow = 4
+oh = 4
+
+st = 2
+
+oh = h * st
+ow = w * st
+
+'''
+a = np.ones((n, c, oh, ow))
+a = a.reshape(n, c, h, w, st, st)
+
+x = x.reshape(n, c, h, w, 1, 1)
+
+x_next = a*x
+
+x_next = x_next.transpose(0,1,2,4,3,5).reshape(n, c, oh, ow)
+
+print(x_next)
+'''
+
+dx = dx.reshape(n, c, h, w, st, st).transpose(0,1,2,4,3,5).sum(axis=(4,5))
+
+
+print(dx.shape)
+
+
+
