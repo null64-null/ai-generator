@@ -83,7 +83,6 @@ class ConvolutionLayer:
     def generate_grad(self, layer_prev):
         n, fn, oh, ow = layer_prev.x.shape
         n, c, h, w = self.x.shape
-        # n, c, h, w = self.input_size
         fn, c, fh, fw = self.filter_size
 
         dx_next = layer_prev.dx
@@ -108,6 +107,8 @@ class ConvolutionLayer:
         self.w -= self.dw * lerning_rate
         self.b -= self.db * lerning_rate
 
+
+# network for de-conb
 class DeconvolutionLayer:
     def __init__(self, filter_size, pad, st, weight_init_std=0.01):
         self.filter_size = filter_size
@@ -145,7 +146,7 @@ class DeconvolutionLayer:
 
         # deploy z
         z_col = z_com.reshape(c, n, fh*fw, h*w).transpose(0,2,1,3).transpose(1, 0, 2, 3)
-        z = col2im(z_col, fh, fw, oh, ow, self.pad, self.st) #要確認
+        z = col2im(z_col, fh, fw, h, w, oh, ow, self.pad, self.st) #要確認
 
         # verticalize b
         b_ver = self.b.reshape(fn, 1, 1)
@@ -159,12 +160,32 @@ class DeconvolutionLayer:
         self.w_com = w_com
 
         return x_next
+    
+    def generate_grad(self, layer_prev):
+        n, fn, oh, ow = layer_prev.x.shape
+        n, c, h, w = self.x.shape
+        fn, c, fh, fw = self.filter_size
 
+        dx_next = layer_prev.dx
 
+        dz = dx_next
+        dz_col = im2col(dz, fh, fw, oh, ow, self.pad, self.st)
+        dz_com = dz_col.transpose(1, 0, 2, 3).transpose(0,2,1,3).reshape(fn*fh*fw, h*w*n)
 
+        dw_com = np.dot(dz_com, self.x_com.T)
+        dw = dw_com.reshape(fn, fh*fw, c).transpose(0, 2, 1).reshape(fn, c, fh, fw)
+        self.dw = dw
 
+        dx_com = np.dot(self.w_com.T, dz_com)
+        dx = dx_com.T.reshape(n, h*w, c).transpose(0, 2, 1).reshape(n, c, h, w)
+        self.dx = dx
 
+        db = np.sum(dx_next, axis=(0, 2, 3))
+        self.db = db
 
+    def update_grad(self, lerning_rate):
+        self.w -= self.dw * lerning_rate
+        self.b -= self.db * lerning_rate
 
 
 # joint convolution and affine
@@ -204,4 +225,5 @@ class VerticalizeSection:
     def generate_grad(self, layer_prev):
         dx_next = layer_prev.dx #vertical
         self.dx = dx_next.reshape(self.x.shape) #flat
+
 

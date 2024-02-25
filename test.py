@@ -170,7 +170,7 @@ a = [
 
 print(a[1]['b'])
 '''
-w = np.array([
+dw = np.array([
     [
         [
             [11,12],
@@ -201,6 +201,34 @@ w = np.array([
     ],
 ])
 
+dw_com = np.array([
+    [11,21,31],
+    [12,22,32],
+    [13,23,33],
+    [14,24,34],
+    [41,51,61],
+    [42,52,62],
+    [43,53,63],
+    [44,54,64],
+])
+
+dx = dw
+dx_com = dw_com.T
+
+n = 2
+c = 3
+h = 2
+w = 2
+fn = 2
+fh = 2
+fw = 2
+
+dw = dw_com.reshape(fn, fh*fw, c).transpose(0, 2, 1).reshape(fn, c, fh, fw)
+print(dw)
+
+dx = dx_com.T.reshape(n, h*w, c).transpose(0, 2, 1).reshape(n, c, h, w)
+print(dx)
+
 #n, c, h, w = x.shape
 #x_flatten = x.reshape(n, c, 1, h*w).transpose(1, 0, 2, 3).reshape(c, n*h*w)
 #print(x_flatten)
@@ -209,6 +237,10 @@ w = np.array([
 #w_com = w.reshape(fn, c, fh*fw).transpose(0, 2, 1).reshape(fn*fh*fw, c)
 #print(w_com)
 
+
+
+
+'''
 z = np.array([
     [11,12,13,41,42,43],
     [14,15,16,44,45,46],
@@ -218,6 +250,37 @@ z = np.array([
     [34,35,36,64,65,66],
 ])
 
+dz = np.array([
+    [
+        [
+            [11,12,13],
+            [14,15,16]
+        ],
+        [
+            [21,22,23],
+            [24,25,26]
+        ],
+        [
+            [31,32,33],
+            [34,35,36]
+        ],
+    ],
+    [
+        [
+            [41,42,43],
+            [44,45,46]
+        ],
+        [
+            [51,52,53],
+            [54,55,56]
+        ],
+        [
+            [61,62,63],
+            [64,65,66]
+        ],
+    ],
+])
+
 n = 2
 c = 3
 oh = 2
@@ -225,3 +288,7 @@ ow = 3
 
 z = z.reshape(c, n, oh, ow).transpose(0,2,1,3).transpose(1, 0, 2, 3)
 print(z)
+dz = dz.transpose(1, 0, 2, 3).transpose(0,2,1,3).reshape(6, 6)
+print(dz)
+'''
+
