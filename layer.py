@@ -1,5 +1,5 @@
-from network.network import AffineLayer, ConvolutionLayer, FlattenSection, VerticalizeSection
-from network.pooling import MaxPooling, AveragePooling
+from network.network import AffineLayer, ConvolutionLayer, FlattenSection, VerticalizeSection, DeconvolutionLayer
+from network.pooling import MaxPooling, AveragePooling, NNUnpooling
 from network.activation import Relu, Sigmoid, Tanh, Softmax
 
 def layer(layer_type, params):
@@ -8,6 +8,9 @@ def layer(layer_type, params):
         return layer
     if layer_type == 'convolution_layer':
         layer = ConvolutionLayer(filter_size=params['filter_size'], pad=params['pad'], st=params['st'])
+        return layer
+    if layer_type == 'deconvolution_layer':
+        layer = DeconvolutionLayer(filter_size=params['filter_size'], pad=params['pad'], st=params['st'])
         return layer
     if layer_type == 'flatten_section':
         layer = FlattenSection()
@@ -20,6 +23,9 @@ def layer(layer_type, params):
         return layer
     if layer_type == 'average_pooling':
         layer = AveragePooling(st=params['st'])
+        return layer
+    if layer_type == 'nn_unpooling':
+        layer = NNUnpooling(st=params['st'])
         return layer
     if layer_type == 'relu':
         layer = Relu()

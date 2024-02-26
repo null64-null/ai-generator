@@ -1,5 +1,5 @@
 import numpy as np
-from network.functions.convolution_functions import im2col, col2im, compress_xcol, compress_w, compress_z, deploy_xcol, deploy_w, deploy_z
+from network.functions.convolution_functions import im2col, col2im, col2im_deconv, im2col_deconv, compress_xcol, compress_w, compress_z, deploy_xcol, deploy_w, deploy_z
 
 # network for affine
 class AffineLayer:
@@ -93,7 +93,7 @@ class ConvolutionLayer:
         dx_com = np.dot(dz_com, self.w_com.T)        
         dx_col_T = deploy_xcol(dx_com, n, c, oh*ow, fh*fw)
         dx_col = dx_col_T.transpose(0, 1, 3, 2)
-        dx = col2im(dx_col, fh, fw, h, w, oh, ow, self.pad, self.st)
+        dx = col2im(dx_col, n, c, fh, fw, h, w, oh, ow, self.pad, self.st)
         self.dx = dx
         
         dw_com = np.dot(self.x_com.T, dz_com)
@@ -129,24 +129,25 @@ class DeconvolutionLayer:
         self.w_com = None
 
     def func(self, x):
-        n, c, w, h = x.shape
+        x_pad = np.pad(x, ((0, 0), (0, 0), (self.pad, self.pad),(self.pad, self.pad)), mode='constant', constant_values=0)
+        n, c, w, h = x_pad.shape
         fn, c, fh, fw = self.filter_size
 
         oh = (h - 1)*self.st - self.pad*2 + fh
         ow = (h - 1)*self.st - self.pad*2 + fw
 
         # compress x
-        x_com = x.reshape(n, c, 1, h*w).transpose(1, 0, 2, 3).reshape(c, n*h*w)
-
+        x_com = x_pad.reshape(n, c, 1, h*w).transpose(1, 0, 2, 3).reshape(c, n*h*w)
+        
         # compress w
-        w_com = w.reshape(fn, c, fh*fw).transpose(0, 2, 1).reshape(fn*fh*fw, c)
+        w_com = self.w.reshape(fn, c, fh*fw).transpose(0, 2, 1).reshape(fn*fh*fw, c)
 
         # convolute
         z_com = np.dot(w_com, x_com)
 
         # deploy z
-        z_col = z_com.reshape(c, n, fh*fw, h*w).transpose(0,2,1,3).transpose(1, 0, 2, 3)
-        z = col2im(z_col, fh, fw, h, w, oh, ow, self.pad, self.st) #要確認
+        z_col = z_com.reshape(fn, n, fh*fw, h*w).transpose(0,2,1,3).reshape(n, fn, fh*fw, h*w)
+        z = col2im_deconv(z_col, n, fn, fh, fw, h, w, oh, ow, self.st)
 
         # verticalize b
         b_ver = self.b.reshape(fn, 1, 1)
@@ -164,12 +165,14 @@ class DeconvolutionLayer:
     def generate_grad(self, layer_prev):
         n, fn, oh, ow = layer_prev.x.shape
         n, c, h, w = self.x.shape
+        h = h + self.pad*2
+        w = w + self.pad*2
         fn, c, fh, fw = self.filter_size
 
         dx_next = layer_prev.dx
 
         dz = dx_next
-        dz_col = im2col(dz, fh, fw, oh, ow, self.pad, self.st)
+        dz_col = im2col_deconv(dz, n, fn, fh, fw, h, w, self.st)
         dz_com = dz_col.transpose(1, 0, 2, 3).transpose(0,2,1,3).reshape(fn*fh*fw, h*w*n)
 
         dw_com = np.dot(dz_com, self.x_com.T)
@@ -178,6 +181,8 @@ class DeconvolutionLayer:
 
         dx_com = np.dot(self.w_com.T, dz_com)
         dx = dx_com.T.reshape(n, h*w, c).transpose(0, 2, 1).reshape(n, c, h, w)
+        if self.pad != 0:
+            dx = dx[:, :, 1:-self.pad, 1:-self.pad]
         self.dx = dx
 
         db = np.sum(dx_next, axis=(0, 2, 3))

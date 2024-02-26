@@ -19,6 +19,9 @@ auth_file_path = 'auth.pkl'           #dummy
 auth_image_shape = [5000, 3, 32, 32]  #dummy
 '''
 
+# batch size
+batch_size = 100
+
 # network
 # oh = 1 + (h + 2 * pad - fh) / st
 error = CrossEntropyError()
@@ -29,7 +32,7 @@ generator_layers_params = [
     {
         'layer_type': 'affine_layer',
         'params': {
-            'layer_size': [10, 10],
+            'layer_size': [10, 25],
         }
     },
     {
@@ -39,14 +42,16 @@ generator_layers_params = [
     {
         'layer_type': 'verticalize_section',
         'params': {
-            'next_layer_size': [100, 1, 5, 5]
+            'next_layer_size': [batch_size, 1, 5, 5]
         }
     },
     # (h, w) = (batch_size, 1, 5, 5)
     {
         'layer_type': 'deconvolution_layer',
         'params': {
-            
+            'filter_size': [batch_size, 1, 24, 24],
+            'pad': 0,
+            'st': 1
         }
     },
     # (h, w) = (batch_size, 1, 28, 28)
