@@ -93,7 +93,7 @@ discriminator_layers_params = [
 ]
 
 # learning, checking setting
-iters = 500
+iters = 10000
 picture_check_span = 100
 
 
@@ -136,7 +136,7 @@ learning = Gun (
     learning_params = learning_params,
     checking_params = checking_params,
     is_show_progress = True,
-    is_show_pictures = True,
+    is_show_pictures = False,
     is_show_result = True,
 )
 

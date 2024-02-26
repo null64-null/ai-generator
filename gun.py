@@ -1,5 +1,6 @@
 import sys, os
 import numpy as np
+from PIL import Image
 import matplotlib.pyplot as plt
 
 from util.progress import show_iter_progress_for_gun
@@ -30,7 +31,10 @@ class Gun:
         self.is_show_result = is_show_result
     
     def learn(self):
+        a = []
         for i in range(self.iters):
+            a.append(i)
+            print(a)
             _, c, h, w = self.x_auth.shape
 
             # make input: expected output 0~9
@@ -103,21 +107,27 @@ class Gun:
             # picture check
             if i % self.picture_check_span == 0:
                 generated_pictures = predict(input, self.generator_layers)
-                n, c, _, _ = generated_pictures.shape
-
-                _, axes = plt.subplots(1, n, figsize=(n * 2, 2))
+                n, c, h, w = generated_pictures.shape
                 
+                images_combined = []
+
                 for i in range(n):
-                    if c == 1:
-                        axes[i].imshow(generated_pictures[i, 0], cmap='gray')
-                        axes[i].axis('off')
-                    else:
-                        axes[i].imshow(np.transpose(generated_pictures[i], (1, 2, 0)))  
-                        axes[i].axis('off') 
+                    image = generated_pictures[i, :, :, :].reshape(c, h, w)
+                    image = image.reshape(h, w)
 
-                plt.tight_layout()
-                plt.show()
+                    min_val = np.min(image)
+                    max_val = np.max(image)
 
+                    image_scaled = ((image - min_val) / (max_val - min_val) * 255).astype(np.uint8)
+
+                    images_combined.append(image_scaled)
+
+                    if i < n - 1:
+                        images_combined.append(np.zeros((h, round(w / 2)), dtype=np.uint8))
+                
+                combined_image = np.hstack(images_combined)
+                combined_image = Image.fromarray(combined_image)
+                combined_image.show()
                 
             # indicator iter
             if self.is_show_progress:
@@ -126,17 +136,25 @@ class Gun:
         # show result
         if self.is_show_result:
             generated_pictures = predict(input, self.generator_layers)
-            n, c, _, _ = generated_pictures.shape
+            n, c, h, w = generated_pictures.shape
+            
+            images_combined = []
 
-            _, axes = plt.subplots(1, n, figsize=(n * 2, 2))
-                    
             for i in range(n):
-                if c == 1:
-                    axes[i].imshow(generated_pictures[i, 0], cmap='gray')
-                    axes[i].axis('off')
-                else:
-                    axes[i].imshow(np.transpose(generated_pictures[i], (1, 2, 0)))  
-                    axes[i].axis('off') 
+                image = generated_pictures[i, :, :, :].reshape(c, h, w)
+                image = image.reshape(h, w)
 
-                plt.tight_layout()
-                plt.show()
+                min_val = np.min(image)
+                max_val = np.max(image)
+
+                image_scaled = ((image - min_val) / (max_val - min_val) * 255).astype(np.uint8)
+
+                images_combined.append(image_scaled)
+
+                if i < n - 1:
+                    images_combined.append(np.zeros((h, round(w / 2)), dtype=np.uint8))
+            
+            combined_image = np.hstack(images_combined)
+            combined_image = Image.fromarray(combined_image)
+            combined_image.show()
+                
