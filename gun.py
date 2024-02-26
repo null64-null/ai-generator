@@ -8,17 +8,14 @@ from propagetion.predict import predict
 from propagetion.gradient import generate_grads, update_grads
 
 class Gun:
-    def __init__(self, data, generator_layers, discriminator_layers, error, learning_params, checking_params, is_show_progress, is_show_pictures, is_show_result):
-        self.x_auth = np.array([])
-
+    def __init__(self, data, labels_number, generator_layers, discriminator_layers, error, learning_params, checking_params, is_show_progress, is_show_pictures, is_show_result):
         x_auth = data['x_auth']
         t_auth = data['t_auth']
 
-        self.labels_number = t_auth.shape[1]
-        for i in range(self.labels_number):
-            mask = np.where(t_auth[:, i] == 1)[0]
-            self.x_auth.append(x_auth[mask])
-
+        self.x_auth = x_auth
+        self.t_auth = t_auth
+        self.labels_number = labels_number
+       
         self.generator_layers = generator_layers
         self.discriminator_layers = discriminator_layers
         self.error = error
@@ -34,11 +31,18 @@ class Gun:
     
     def learn(self):
         for i in range(self.iters):
-            # choose train data from data set
+            _, c, h, w = self.x_auth.shape
+
+            # make input: expected output 0~9
             input = np.eye(10)
-            x_auth = np.array([])
-            for i in range(self.x_auth[0]):
-                x_auth.append(self.x_auth[i], 1)
+
+            # choose auth images 0~9
+            x_auth = np.zeros((10, c, h, w))
+            for i in range(10):
+                random_row_index = np.random.choice(np.where(self.t_auth[:, i] == 1)[0])
+                x_auth[i] = self.x_auth[random_row_index]
+
+            # make auth, fake t
             auth = np.zeros(self.labels_number).T # 0 "auth"
             fake = np.ones(self.labels_number).T # 1 "fake"
 
@@ -64,12 +68,15 @@ class Gun:
 
 
             ######## discriminator が generator の画像を 1 "fake" にできるように discriminator を更新 ########
+            # judge (t = 1 "fake")
+            self.error.generate_error(discriminations, fake)
+
             # calculate gradients (only discriminator_layer)
             self.error.generate_grad(discriminations, fake)
-            generate_grads(self.discriminator_layers, self.error)
+            generate_grads(self.discriminator_layers, self.error) ####
 
             # update params (only discriminator_layer)
-            update_grads(self.discriminator_layers, self.lerning_rate)
+            update_grads(self.discriminator_layers, self.lerning_rate) ####
             
             # error reset
             self.error.initialize()
@@ -92,7 +99,6 @@ class Gun:
             # error reset
             self.error.initialize()
             ############################################################################################
-
 
             # picture check
             if i % self.picture_check_span == 0:

@@ -214,13 +214,14 @@ class FlattenSection:
 
 # joint convolution and affine
 class VerticalizeSection:
-    def __init__(self):
+    def __init__(self, next_layer_size):
         self.x = None
         self.dx = None
+        self.next_layer_size = next_layer_size
 
-    def func(self, x, next_x_shape):
+    def func(self, x):
         n, chw = x.shape
-        _, c, oh, ow = next_x_shape
+        _, c, oh, ow = self.next_layer_size
         
         x_next = x.reshape(n, c, oh, ow)
 

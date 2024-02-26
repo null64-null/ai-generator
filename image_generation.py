@@ -2,7 +2,7 @@ import sys, os
 import numpy as np
 
 from propagetion.loss import CrossEntropyError
-from learning import Gun
+from gun import Gun
 from layer import generate_layers
 
 sys.path.append(os.pardir)
@@ -18,9 +18,11 @@ from mnist.mnist import load_mnist
 auth_file_path = 'auth.pkl'           #dummy
 auth_image_shape = [5000, 3, 32, 32]  #dummy
 '''
+#labes number
+labels_number = 10
 
 # batch size
-batch_size = 100
+batch_size = 10
 
 # network
 # oh = 1 + (h + 2 * pad - fh) / st
@@ -32,7 +34,7 @@ generator_layers_params = [
     {
         'layer_type': 'affine_layer',
         'params': {
-            'layer_size': [10, 25],
+            'layer_sizes': [10, 25],
         }
     },
     {
@@ -49,7 +51,7 @@ generator_layers_params = [
     {
         'layer_type': 'deconvolution_layer',
         'params': {
-            'filter_size': [batch_size, 1, 24, 24],
+            'filter_size': [1, 1, 24, 24],
             'pad': 0,
             'st': 1
         }
@@ -80,7 +82,7 @@ discriminator_layers_params = [
     {
         'layer_type': 'affine_layer',
         'params': {
-            'layer_size': [10, 1],
+            'layer_sizes': [10, 1],
         }
     },
     # (h, w) = (batch_size, 1)
@@ -127,6 +129,7 @@ discriminator_layers = generate_layers(discriminator_layers_params)
 ##### learn #####
 learning = Gun (
     data = data,
+    labels_number = labels_number,
     generator_layers = generator_layers,
     discriminator_layers = discriminator_layers,
     error = error,
