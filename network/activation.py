@@ -12,6 +12,23 @@ class Relu:
     
     def generate_grad(self, layer_prev):
        dxdx = self.x > 0
+       self.dx = dxdx * layer_prev.dx
+
+class LeakyRelu:
+    def __init__(self, grad):
+        self.x = None
+        self.dx = None
+        
+        self.grad = grad
+
+    def func(self, x):
+        x_next = np.where(x > 0, x, x * self.grad)
+
+        self.x = x
+        return x_next
+    
+    def generate_grad(self, layer_prev):
+       dxdx = np.where(self.x > 0, 1, self.grad)
        self.dx = dxdx * layer_prev.dx  
 
 class Sigmoid:

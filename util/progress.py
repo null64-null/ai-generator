@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import time
 
 def show_iter_progress(
@@ -39,11 +40,13 @@ def show_iter_progress(
     except:
         pass
 
-def show_iter_progress_for_gun(i, iters, picture_check_span):
+def show_iter_progress_for_gun(i, iters, picture_check_span, test_input):
 
     os.system('cls' if os.name == 'nt' else 'clear')  
     
     percent = ( i / iters ) * 100
+
+    np.set_printoptions(precision=2)
 
     print("======== progress ========")
     print(" ")
@@ -57,6 +60,7 @@ def show_iter_progress_for_gun(i, iters, picture_check_span):
     print(" ")
     print(f"check point : {i // picture_check_span} / {iters // picture_check_span}")
     print(" ")
+    print(f"test input :  {test_input}")
 
 
 

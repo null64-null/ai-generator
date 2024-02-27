@@ -18,11 +18,9 @@ from mnist.mnist import load_mnist
 auth_file_path = 'auth.pkl'           #dummy
 auth_image_shape = [5000, 3, 32, 32]  #dummy
 '''
-#labes number
-labels_number = 10
 
 # batch size
-batch_size = 10
+batch_size = 1000
 
 # network
 # oh = 1 + (h + 2 * pad - fh) / st
@@ -34,9 +32,21 @@ generator_layers_params = [
     {
         'layer_type': 'affine_layer',
         'params': {
-            'layer_sizes': [10, 25],
+            'layer_sizes': [10, 100],
         }
     },
+    # (h, w) = (batch_size, 100)
+    {
+        'layer_type': 'relu',
+        'params': {}
+    },
+    {
+        'layer_type': 'affine_layer',
+        'params': {
+            'layer_sizes': [100, 784],
+        }
+    },
+    # (h, w) = (batch_size, 784)
     {
         'layer_type': 'relu',
         'params': {}
@@ -44,48 +54,50 @@ generator_layers_params = [
     {
         'layer_type': 'verticalize_section',
         'params': {
-            'next_layer_size': [batch_size, 1, 5, 5]
+            'next_layer_size': [batch_size, 1, 28, 28]
         }
     },
-    # (h, w) = (batch_size, 1, 5, 5)
+    # (n, c, h, w) = (batch_size, 1, 28, 28)
     {
-        'layer_type': 'deconvolution_layer',
-        'params': {
-            'filter_size': [1, 1, 24, 24],
-            'pad': 0,
-            'st': 1
-        }
+        'layer_type': 'sigmoid',
+        'params': {}
     },
-    # (h, w) = (batch_size, 1, 28, 28)
 ]
 
 discriminator_layers_params = [
     # (n, c, h, w) = (batch_size, 1, 28, 28)
     {
-        'layer_type': 'convolution_layer',
-        'params': {
-            'filter_size': [10, 1, 28, 28],
-            'pad': 0,
-            'st': 1
-        }
-    },
-    # (n, fn, oh, ow) = (batch_size, 10, 1, 1)
-    {
-        'layer_type': 'relu',
-        'params': {}
-    },
-    {
         'layer_type': 'flatten_section',
         'params': {}
     },
-    # (h, w) = (batch_size, 1*1*10) = (batch_size, 10)
+    # (h, w) = (batch_size, 1*1*10) = (batch_size, 784)
     {
         'layer_type': 'affine_layer',
         'params': {
-            'layer_sizes': [10, 1],
+            'layer_sizes': [784, 100],
+        }
+    },
+    # (h, w) = (batch_size, 100)
+    {
+        'layer_type': 'leaky_relu',
+        'params': {
+            'grad': 0.3
+        }
+    },
+    # (h, w) = (batch_size, 100)
+    {
+        'layer_type': 'affine_layer',
+        'params': {
+            'layer_sizes': [100, 1],
         }
     },
     # (h, w) = (batch_size, 1)
+    {
+        'layer_type': 'leaky_relu',
+        'params': {
+            'grad': 0.3
+        }
+    },
     {
         'layer_type': 'soft_max',
         'params': {}
@@ -93,7 +105,7 @@ discriminator_layers_params = [
 ]
 
 # learning, checking setting
-iters = 10000
+iters = 1000
 picture_check_span = 100
 
 
@@ -129,7 +141,7 @@ discriminator_layers = generate_layers(discriminator_layers_params)
 ##### learn #####
 learning = Gun (
     data = data,
-    labels_number = labels_number,
+    batch_size= batch_size,
     generator_layers = generator_layers,
     discriminator_layers = discriminator_layers,
     error = error,

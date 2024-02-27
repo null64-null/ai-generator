@@ -54,3 +54,25 @@ image = Image.fromarray(np.transpose(rgb_array, (1, 2, 0)))
 # image.save("output_image.jpg")  # 画像を保存する場合
 image.show()
 '''
+
+def show_generated_pictures(images):
+    n, c, h, w = images.shape
+    images_combined = []
+
+    for i in range(n):
+        image = images[i, :, :, :].reshape(c, h, w)
+        image = image.reshape(h, w)
+
+        min_val = np.min(image)
+        max_val = np.max(image)
+
+        image_scaled = ((image - min_val) / (max_val - min_val) * 255).astype(np.uint8)
+
+        images_combined.append(image_scaled)
+
+        if i < n - 1:
+            images_combined.append(np.zeros((h, round(w / 2)), dtype=np.uint8))
+                
+    combined_image = np.hstack(images_combined)
+    combined_image = Image.fromarray(combined_image)
+    combined_image.show()   

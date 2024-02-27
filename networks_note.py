@@ -92,3 +92,76 @@ layers = [
     Softmax(),
 ]
 '''
+
+
+# first gan
+'''
+generator_layers_params = [
+    # (h, w) = (batch_size, 10)
+    {
+        'layer_type': 'affine_layer',
+        'params': {
+            'layer_sizes': [10, 25],
+        }
+    },
+    {
+        'layer_type': 'relu',
+        'params': {}
+    },
+    {
+        'layer_type': 'verticalize_section',
+        'params': {
+            'next_layer_size': [batch_size, 1, 5, 5]
+        }
+    },
+    # (h, w) = (batch_size, 1, 5, 5)
+    {
+        'layer_type': 'deconvolution_layer',
+        'params': {
+            'filter_size': [1, 1, 24, 24],
+            'pad': 0,
+            'st': 1
+        }
+    },
+    # (h, w) = (batch_size, 1, 28, 28)
+    {
+        'layer_type': 'sigmoid',
+        'params': {}
+    },
+]
+
+discriminator_layers_params = [
+    # (n, c, h, w) = (batch_size, 1, 28, 28)
+    {
+        'layer_type': 'convolution_layer',
+        'params': {
+            'filter_size': [10, 1, 28, 28],
+            'pad': 0,
+            'st': 1
+        }
+    },
+    # (n, fn, oh, ow) = (batch_size, 10, 1, 1)
+    {
+        'layer_type': 'leaky_relu',
+        'params': {
+            'grad': 0.5
+        }
+    },
+    {
+        'layer_type': 'flatten_section',
+        'params': {}
+    },
+    # (h, w) = (batch_size, 1*1*10) = (batch_size, 10)
+    {
+        'layer_type': 'affine_layer',
+        'params': {
+            'layer_sizes': [10, 1],
+        }
+    },
+    # (h, w) = (batch_size, 1)
+    {
+        'layer_type': 'soft_max',
+        'params': {}
+    },
+]
+'''

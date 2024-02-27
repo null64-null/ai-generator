@@ -1,6 +1,6 @@
 from network.network import AffineLayer, ConvolutionLayer, FlattenSection, VerticalizeSection, DeconvolutionLayer
 from network.pooling import MaxPooling, AveragePooling, NNUnpooling
-from network.activation import Relu, Sigmoid, Tanh, Softmax
+from network.activation import Relu, LeakyRelu, Sigmoid, Tanh, Softmax
 
 def layer(layer_type, params):
     if layer_type == 'affine_layer':
@@ -29,6 +29,9 @@ def layer(layer_type, params):
         return layer
     if layer_type == 'relu':
         layer = Relu()
+        return layer
+    if layer_type == 'leaky_relu':
+        layer = LeakyRelu(grad=params['grad'])
         return layer
     if layer_type == 'sigmoid':
         layer = Sigmoid()
