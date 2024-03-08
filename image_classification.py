@@ -33,12 +33,12 @@ layer_params = [
     {
         'layer_type': 'convolution_layer',
         'params': {
-            'filter_size': [10, 1, 28, 28],
+            'filter_size': [5, 1, 7, 7],
             'pad': 0,
             'st': 1
         }
     },
-    # (n, fn, oh, ow) = (batch_size, 10, 1, 1)
+    # (n, fn, oh, ow) = (batch_size, 5, 22, 22)
     {
         'layer_type': 'relu',
         'params': {}
@@ -47,7 +47,13 @@ layer_params = [
         'layer_type': 'flatten_section',
         'params': {}
     },
-    # (h, w) = (batch_size, 1*1*10) = (batch_size, 10)
+    # (h, w) = (batch_size, 1*1*10) = (batch_size, 2420)
+    {
+        'layer_type': 'affine_layer',
+        'params': {
+            'layer_sizes': [2420, 10]
+        }
+    },
     {
         'layer_type': 'soft_max',
         'params': {}
@@ -55,8 +61,8 @@ layer_params = [
 ]
 
 # learning, checking setting
-iters = 500
-accuracy_check_span = 100
+iters = 1000
+accuracy_check_span = 200
 check_mask_size_train = 50
 check_mask_size_test = 50
 
