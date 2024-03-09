@@ -59,8 +59,8 @@
 
 #### 生成されたネットワークモデル
 - 生成されたネットワークモデルでは、以下のような畳み込みフィルタが生成された
-- 手書き文字の各部（斜め線や曲線、8, 0, 9のような穴のある形状）などに反応するような画像になっているようである<br>
-<img width="150" alt="0 2" src="https://github.com/null64-null/ai-generator/assets/127968084/c0922e3e-e313-451d-89af-79629859f23e"> <img width="148" alt="0 3" src="https://github.com/null64-null/ai-generator/assets/127968084/010a16f4-e80f-41e3-8f32-30aca745b03c"> <img width="151" alt="0 4" src="https://github.com/null64-null/ai-generator/assets/127968084/02fceac1-c417-4d73-aeb6-b14d3602e6d8"> <img width="149" alt="0 5" src="https://github.com/null64-null/ai-generator/assets/127968084/e13da8c2-1e70-45da-8513-80159a31d7a8"> <img width="147" alt="0 6" src="https://github.com/null64-null/ai-generator/assets/127968084/3a99cc21-4f03-40b9-94cd-f7acb4938b2a">
+- 手書き文字の各部（斜め線や水平の線、8, 0, 9のような穴のある形状）などに反応するような画像になっているようである<br>
+<img width="148" alt="0 2" src="https://github.com/null64-null/ai-generator/assets/127968084/3513a24e-1c11-4778-be29-03a0004afe97">　<img width="147" alt="0 3" src="https://github.com/null64-null/ai-generator/assets/127968084/46422e8e-7e51-4380-9bca-27dc6c90e9b9">　<img width="144" alt="0 4" src="https://github.com/null64-null/ai-generator/assets/127968084/1e1f93ab-9cfd-4178-9931-252b4da20681">　<img width="144" alt="0 5" src="https://github.com/null64-null/ai-generator/assets/127968084/0534e905-7122-4fc6-b8b1-c72e69536051">　<img width="148" alt="0 6" src="https://github.com/null64-null/ai-generator/assets/127968084/684c5056-1088-4bb1-89ec-74e7dc9fe2b6">
 
 #### 学習の過程
 <img width="1003" alt="スクリーンショット 2024-03-09 13 08 43" src="https://github.com/null64-null/ai-generator/assets/127968084/f1095e3a-4dda-47da-9359-40b789302c50"><br>
