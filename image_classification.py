@@ -62,7 +62,7 @@ layer_params = [
 
 # learning, checking setting
 iters = 1000
-accuracy_check_span = 200
+accuracy_check_span = 100
 check_mask_size_train = 50
 check_mask_size_test = 50
 
