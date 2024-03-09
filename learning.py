@@ -12,8 +12,8 @@ class Supervised_learning:
     def __init__(self, data, layers, error, learning_params, checking_params, isShowProgress, isShowGraph, isShowResult, isShowFilters):
         self.x_train = data['x_train']
         self.t_train = data['t_train']
-        self.x_test = data['x_train']
-        self.t_test = data['t_train']
+        self.x_test = data['x_test']
+        self.t_test = data['t_test']
 
         self.layers = layers
         self.error = error
