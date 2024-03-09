@@ -59,8 +59,8 @@
 
 #### 生成されたネットワークモデル
 - 生成されたネットワークモデルでは、以下のような畳み込みフィルタが生成された
-- 手書き文字の各部（直線部分、曲線部分、8のような穴のある形状）などに反応するような画像になっているようである
-
+- 手書き文字の各部（斜め線や曲線、8, 0, 9のような穴のある形状）などに反応するような画像になっているようである
+<img width="150" alt="0 2" src="https://github.com/null64-null/ai-generator/assets/127968084/c0922e3e-e313-451d-89af-79629859f23e"> <img width="148" alt="0 3" src="https://github.com/null64-null/ai-generator/assets/127968084/010a16f4-e80f-41e3-8f32-30aca745b03c"> <img width="151" alt="0 4" src="https://github.com/null64-null/ai-generator/assets/127968084/02fceac1-c417-4d73-aeb6-b14d3602e6d8"> <img width="149" alt="0 5" src="https://github.com/null64-null/ai-generator/assets/127968084/e13da8c2-1e70-45da-8513-80159a31d7a8"> <img width="147" alt="0 6" src="https://github.com/null64-null/ai-generator/assets/127968084/3a99cc21-4f03-40b9-94cd-f7acb4938b2a">
 
 #### 学習の過程
 <img width="1019" alt="学習過程" src="https://github.com/null64-null/ai-generator/assets/127968084/d6155594-831a-425f-9680-162a47504447"><br>
