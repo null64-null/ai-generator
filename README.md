@@ -54,8 +54,8 @@
 #### 正答率
 | | 画像総数 | うち判定に成功した画像枚数 | 正答率 |
 | ---- | ---- | ---- | ---- |
-| トレーニングデータ | 60000 | 58123 | 96.87 % |
-| テストデータ  | 10000 | 9688 | 96.88 % |
+| トレーニングデータ | 60000 | 57847 | 96.41 % |
+| テストデータ  | 10000 | 9649 | 96.49 % |
 
 #### 生成されたネットワークモデル
 - 生成されたネットワークモデルでは、以下のような畳み込みフィルタが生成された
@@ -63,7 +63,7 @@
 <img width="150" alt="0 2" src="https://github.com/null64-null/ai-generator/assets/127968084/c0922e3e-e313-451d-89af-79629859f23e"> <img width="148" alt="0 3" src="https://github.com/null64-null/ai-generator/assets/127968084/010a16f4-e80f-41e3-8f32-30aca745b03c"> <img width="151" alt="0 4" src="https://github.com/null64-null/ai-generator/assets/127968084/02fceac1-c417-4d73-aeb6-b14d3602e6d8"> <img width="149" alt="0 5" src="https://github.com/null64-null/ai-generator/assets/127968084/e13da8c2-1e70-45da-8513-80159a31d7a8"> <img width="147" alt="0 6" src="https://github.com/null64-null/ai-generator/assets/127968084/3a99cc21-4f03-40b9-94cd-f7acb4938b2a">
 
 #### 学習の過程
-<img width="1019" alt="学習過程" src="https://github.com/null64-null/ai-generator/assets/127968084/d6155594-831a-425f-9680-162a47504447"><br>
+<img width="1003" alt="スクリーンショット 2024-03-09 13 08 43" src="https://github.com/null64-null/ai-generator/assets/127968084/f1095e3a-4dda-47da-9359-40b789302c50"><br>
 - 左のグラフは、各学習回における誤差（ネットワークが出した判定と、正解にどれくらい開きがあるかを誤差関数である cross entropy error で計算した値）を示している。学習の回を追うごとに誤差が減少していく様子が分かる。
 - 右のグラフは、テストデータとトレーニングデータの画像セットを、その時に生成された学習モデルを用いて判定した時の正答率を示している。学習の回を追うごとに正答率が上昇していっている様子が分かる。
 <br><br>
