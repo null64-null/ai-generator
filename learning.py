@@ -62,7 +62,7 @@ class Supervised_learning:
             update_grads(self.layers, self.lerning_rate)
 
             # accuracy check
-            if i % self.accuracy_check_span == 0:
+            if i % self.accuracy_check_span == 0 or i+1 == self.iters:
                 # get contemporary layer
                 test_layers = self.layers
 
